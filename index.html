@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Region Arena</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#18202a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a city transit map. The course is one metro route through 5 lines (chapters); each station is a syllabus
+   section; the governance round is a city-hall desk with a zone dashboard. One phone-width column, sticky header. */
+:root{
+  --paper:#f3f4f1; --card:#ffffff; --ink:#18202a; --muted:#5d6672; --rule:#d9ddd8; --soft:#e8ebe6;
+  --c1:#0f7b74; --c2:#4a4fb3; --c3:#c27a00; --c4:#b8334a; --c5:#2f7d32;
+  --good:#1d7a46; --warn:#b26a00; --bad:#b3261e;
+  --display:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12161b; --card:#1a2027; --ink:#e7eae6; --muted:#9aa3ad; --rule:#2c343d; --soft:#222a32;
+  --c1:#3fb8ad; --c2:#8d92f0; --c3:#f0a93a; --c4:#ec6a80; --c5:#6cc070;
+  --good:#5cc489; --warn:#f0a93a; --bad:#ff7a70; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12161b; --card:#1a2027; --ink:#e7eae6; --muted:#9aa3ad; --rule:#2c343d; --soft:#222a32;
+  --c1:#3fb8ad; --c2:#8d92f0; --c3:#f0a93a; --c4:#ec6a80; --c5:#6cc070;
+  --good:#5cc489; --warn:#f0a93a; --bad:#ff7a70; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+[hidden]{display:none!important}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--rule)}
+header .in{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;flex-direction:column;gap:8px}
+.brand{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;min-width:0}
+.logo b{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.01em}
+.zen{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.me{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.me strong{color:var(--ink)}
+nav{display:flex;gap:4px;overflow-x:auto}
+nav button{border:0;background:none;color:var(--muted);font:600 13px var(--body);padding:6px 10px;border-radius:999px;white-space:nowrap;cursor:pointer}
+nav button[aria-current="true"]{background:var(--ink);color:var(--card)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--c2);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:24px;font-weight:800;letter-spacing:-.015em}
+h2{font-size:18px;font-weight:700}
+h3{font-size:15px;font-weight:700}
+p{margin:0}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--card);font:600 14px var(--body);padding:9px 16px;border-radius:8px;cursor:pointer}
+.btn.ghost{background:none;color:var(--ink)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--rule);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;background:var(--soft)}
+.chip.good{color:var(--good);border-color:currentColor;background:none}
+.chip.warn{color:var(--warn);border-color:currentColor;background:none}
+input[type=text],input[type=password],input[type=number],select,textarea{font:15px var(--body);padding:8px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);min-width:0}
+textarea{font-family:var(--mono);font-size:13px;width:100%;min-height:9em}
+.note{font-size:12px;color:var(--muted);border-left:3px solid var(--rule);padding-left:8px}
+.err{color:var(--bad);font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--card);padding:10px 16px;border-radius:8px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+.login{max-width:420px;margin:8vh auto 0}
+.line{position:relative;padding-left:34px}
+.line::before{content:"";position:absolute;left:12px;top:6px;bottom:6px;width:6px;border-radius:3px;background:var(--lc)}
+.line.closed::before{background:repeating-linear-gradient(var(--lc) 0 8px,transparent 8px 14px);opacity:.5}
+.lhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-left:-34px}
+.lbadge{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--lc);color:#fff;font:800 14px var(--display);flex:none}
+.stations{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.st{position:relative;display:flex;align-items:center;gap:10px;justify-content:space-between;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:9px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.st::before{content:"";position:absolute;left:-28px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--card);border:3px solid var(--lc)}
+.st.done::before{background:var(--lc)}
+.st.boss::before{border-radius:3px;transform:rotate(45deg)}
+.st:disabled{cursor:not-allowed;opacity:.55}
+.st .t{min-width:0}
+.st .code{font-family:var(--mono);font-size:12px;color:var(--lc);font-weight:600}
+.st .res{font-family:var(--mono);font-size:13px;white-space:nowrap}
+.q{display:flex;flex-direction:column;gap:8px;padding-block:12px;border-top:1px solid var(--rule)}
+.q:first-of-type{border-top:0}
+.q .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--rule);border-radius:8px;padding:8px 10px;cursor:pointer;background:var(--card)}
+.opt input{margin-top:4px}
+.opt:has(input:checked){border-color:var(--ink);background:var(--soft)}
+.timer{font-family:var(--mono);font-weight:600}
+.bars{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:13px}
+.bar{height:10px;background:var(--soft);border-radius:5px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--c3)}
+.pick{display:flex;flex-wrap:wrap;gap:6px}
+.pick label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--rule);border-radius:999px;padding:5px 11px;cursor:pointer;font-size:13px;background:var(--card)}
+.pick label:has(input:checked){border-color:var(--ink);background:var(--soft);font-weight:600}
+.pick input{margin:0}
+.alloc{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:30px;height:30px;border-radius:6px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font:700 16px var(--body);cursor:pointer}
+.step output{font-family:var(--mono);width:22px;text-align:center}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;font-size:13px;width:100%}
+th,td{padding:6px 8px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion: no-preference){.st{transition:border-color .15s}.st:hover:not(:disabled){border-color:var(--lc)}}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <div class="brand">
+    <div class="logo"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 17 L11 9 L15 14 L20 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><b>Region Arena</b><div class="zen">ZenRoad · @chuonghn · MEM4007 · v1.0</div></div></div>
+    <div class="me" id="me"></div>
+  </div>
+  <nav id="nav" aria-label="Khu vực"></nav>
+</div></header>
+<main class="wrap" id="main"><p class="muted">Đang tải…</p></main>
+<div class="toast" id="toast" hidden></div>
+
+<script src="config.js" charset="utf-8"></script>
+<script>
+(function(){
+'use strict';
+var API=window.RA_API||'';
+var $=function(id){return document.getElementById(id);};
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(t){var e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){e.hidden=true;},3500);}
+function pct(r,n){return n?Math.round(100*r/n):0;}
+function fmtNum(x){return String(Math.round(x*100)/100).replace('.',',');}
+function clock(ms){var s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+var ERR={bad_login:'Tên đăng nhập hoặc mã chưa đúng.',locked:'Nhập sai nhiều lần. Thử lại sau 10 phút.',closed:'Tuyến này giảng viên chưa mở.',boss_locked:'Làm hết các ga của tuyến trước khi gặp Trùm.',
+  already_submitted:'Bài này đã nộp.',round_closed:'Vòng điều hành chưa mở hoặc đã đóng.',team_submitted:'Nhóm đã có thành viên nộp phiếu.',no_team:'Bạn chưa được xếp nhóm.',bad_sheet:'Phiếu chưa hợp lệ: kiểm tra đủ 5 phần.',
+  auth:'Phiên đăng nhập hết hạn. Đăng nhập lại.',no_db:'Máy chủ chưa gắn cơ sở dữ liệu (D1).',no_token_key:'Máy chủ chưa có khoá TOKEN_KEY.',net:'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.',bad_members:'Có tên đăng nhập không tồn tại hoặc nằm ở hai nhóm.'};
+function errText(e){return ERR[e]||('Lỗi: '+e);}
+function api(a,body){var t=null;try{t=localStorage.getItem('ra-t');}catch(e){}
+  return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({a:a,t:t},body||{}))})
+   .then(function(r){return r.json();},function(){return {ok:false,error:'net'};})
+   .then(function(res){if(!res.ok&&res.error==='auth'){logout(true);}return res;},function(){return {ok:false,error:'net'};});}
+
+/* ---------- course structure (titles only; questions live on the server) ---------- */
+var LINES=[
+ {ch:1,name:'Cổng Địa phương',topic:'Giới thiệu môn học',buoi:'Buổi 1–2'},
+ {ch:2,name:'Học viện Lý thuyết',topic:'Khung lý thuyết',buoi:'Buổi 3–4'},
+ {ch:3,name:'Phòng Phân tích',topic:'Phân tích kinh tế vùng và địa phương',buoi:'Buổi 5–6'},
+ {ch:4,name:'Phòng Chiến lược',topic:'Xây dựng và quản lý chiến lược phát triển địa phương',buoi:'Buổi 7–8'},
+ {ch:5,name:'Hội đồng Vùng',topic:'Chính sách phát triển và liên kết vùng',buoi:'Buổi 9–11'}];
+var SET=6,BOSS_N=10;
+var RANKS=[[0,'Chuyên viên tập sự'],[200,'Chuyên viên'],[500,'Chuyên viên chính'],[900,'Trưởng phòng'],[1400,'Phó Giám đốc Sở'],[2000,'Giám đốc Sở'],[2800,'Cố vấn chính sách']];
+function rankOf(xp){var r=RANKS[0][1];RANKS.forEach(function(x){if(xp>=x[0])r=x[1];});return r;}
+var DIMS=['QM','NS','VL','HT','NL','DM','MT','DS'];
+var DIMNAME={QM:'Quy mô kinh tế',NS:'Năng suất',VL:'Việc làm',HT:'Hạ tầng – kết nối',NL:'Nhân lực',DM:'Đổi mới',MT:'Môi trường',DS:'Đời sống'};
+var SECTORS=['CN chế biến','Cảng – logistics','Tài chính – DV cao','Thương mại – du lịch','Nông – thuỷ sản'];
+var LEVERS=['HT','DN','NL','CD','MT','UD'];
+var LEVERNAME={HT:'Phát triển địa bàn (hạ tầng)',DN:'Phát triển doanh nghiệp',NL:'Phát triển nhân lực',CD:'Cộng đồng – đời sống',MT:'Môi trường',UD:'Ưu đãi thu hút đầu tư'};
+var ZONES={Z1:'Lõi đô thị lịch sử',Z2:'Chợ Lớn',Z3:'Thủ Thiêm – đô thị mới',Z4:'Vành đai công nghiệp',Z5:'Cảng – năng lượng',Z6:'Cần Giờ – Côn Đảo'};
+var ZONEINFO={
+ Z1:{role:'dịch vụ, thương mại, hành chính, du lịch',tension:'tắc nghẽn, giá đất, bảo tồn hay tái thiết'},
+ Z2:{role:'thương mại – bán buôn, di sản, doanh nghiệp nhỏ',tension:'hiện đại hoá hay giữ bản sắc; doanh nghiệp nhỏ tiếp cận vốn'},
+ Z3:{role:'tài chính, đổi mới; Trung tâm tài chính quốc tế',tension:'đầu tư lớn đi trước nhu cầu; ai hưởng lợi'},
+ Z4:{role:'chế biến chế tạo, khu công nghiệp, lao động nhập cư',tension:'thâm dụng lao động → nâng cấp; nhà ở công nhân'},
+ Z5:{role:'cảng nước sâu Cái Mép – Thị Vải, dầu khí, logistics',tension:'kết nối hậu cần với vành đai công nghiệp; môi trường biển'},
+ Z6:{role:'khu dự trữ sinh quyển Cần Giờ, đặc khu Côn Đảo, kinh tế biển',tension:'lấn biển, du lịch hay bảo vệ sinh quyển'}};
+// verbatim rows of the course fact book (VN_FACTS.md), shown with their codes
+var FACTS=[['A1','TP.HCM + Bình Dương + Bà Rịa – Vũng Tàu → TP.HCM; Nghị quyết 202/2025/QH15 ngày 12/6/2025'],['A3','Diện tích 6.722 km²'],['A4','Dân số hơn 14 triệu người'],
+ ['A5','168 đơn vị cấp xã = 113 phường + 54 xã + 1 đặc khu (Côn Đảo)'],['A6','GRDP 2025: 23,5% GDP cả nước'],['A7','Tăng trưởng GRDP 2025: 8,03%'],
+ ['A16','Dẫn đầu BPI (kết quả thị trường) nhưng chỉ "Khá" ở PCI (chất lượng điều hành)']];
+
+/* ---------- state ---------- */
+var ME=null, STAGES={}, CFG={gates:{},weights:{st:40,rd:60,fin:0},round:{n:1,status:'closed'}}, PROG=null, TEAM=null, RSCORE=null;
+var TAB='route', PLAY=null, RD=null, BOARD=null, TTAB='gates', DRAFT=null, BUSY=false, MADE=null;
+function sectionsOf(ch){return Object.keys(STAGES).filter(function(s){return s.charAt(0)===String(ch);}).sort();}
+function stopsOf(ch){return sectionsOf(ch).concat([ch+'.★']);}
+function teacher(){return ME&&ME.role==='teacher';}
+function gateOpen(ch){return teacher()||(CFG.gates||{})[ch]==='o';}
+function xpOf(p){if(!p)return 0;var x=p.xp||0;Object.keys(p.rnd||{}).forEach(function(k){x+=p.rnd[k]||0;});return x;}
+
+function logout(expired){try{localStorage.removeItem('ra-t');}catch(e){}ME=null;PLAY=null;BOARD=null;RD=null;render();if(expired)toast(ERR.auth);}
+function loadMe(){return api('me').then(function(res){if(!res.ok){if(res.error!=='auth'){$('main').innerHTML='<p class="err">'+esc(errText(res.error))+'</p>';}return;}
+  ME={u:res.u,name:res.name,role:res.role};STAGES=res.stages;CFG=res.cfg;PROG=res.prog||null;TEAM=res.team||null;RSCORE=res.roundScore;
+  if(teacher()&&TAB==='route'&&!loadMe.once){TAB='teach';}loadMe.once=true;render();});}
+function boot(){if(!API){$('main').innerHTML='<p class="err">Chưa có địa chỉ máy chủ trong config.js.</p>';return;}
+  var t=null;try{t=localStorage.getItem('ra-t');}catch(e){}if(!t){render();return;}loadMe();}
+// polling: 8 s while a round is open (students on the round tab, teacher on Vòng/Điểm), otherwise 30 s
+var lastPoll=0;
+setInterval(function(){if(!ME||PLAY||BUSY||document.hidden)return;var live=CFG.round&&(CFG.round.status==='open'||CFG.round.status==='running');
+  var hot=teacher()?(TAB==='teach'&&(TTAB==='round'||TTAB==='score')):(TAB==='round'&&live);
+  if(Date.now()-lastPoll<(hot?8000:30000))return;lastPoll=Date.now();
+  if(teacher()){if(TAB==='teach')loadBoard();}else if(TAB==='round')loadRound().then(loadMe);else loadMe();},2000);
+
+/* ---------- header + nav ---------- */
+function renderHead(){
+  if(!ME){$('me').innerHTML='';$('nav').innerHTML='';return;}
+  $('me').innerHTML=teacher()?'<span><strong>Giảng viên</strong></span>':'<span><strong>'+esc(ME.name||ME.u)+'</strong> · '+esc(ME.u)+'</span><span>'+esc(rankOf(xpOf(PROG)))+'</span><span><strong>'+xpOf(PROG)+'</strong> XP</span><span>'+esc(TEAM?TEAM.name+' · '+TEAM.zone:'chưa xếp nhóm')+'</span>';
+  var tabs=teacher()?[['teach','Bảng giáo viên'],['route','Thử hành trình']]:[['route','Hành trình'],['round','Vòng điều hành'],['mine','Kết quả của tôi']];
+  tabs.push(['out','Đăng xuất']);
+  $('nav').innerHTML=tabs.map(function(x){return '<button type="button" data-tab="'+x[0]+'" aria-current="'+(TAB===x[0]&&!PLAY)+'">'+x[1]+'</button>';}).join('');}
+$('nav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;
+  if(PLAY&&!PLAY.done&&PLAY.kind==='boss')return toast('Đang làm bài Trùm: nộp bài trước khi rời.');
+  if(b.dataset.tab==='out'){if(!logout.arm){logout.arm=true;b.textContent='Bấm lần nữa để đăng xuất';setTimeout(function(){logout.arm=false;renderHead();},4000);return;}logout.arm=false;logout();return;}
+  PLAY=null;TAB=b.dataset.tab;render();window.scrollTo(0,0);
+  if(TAB==='round')loadRound();if(TAB==='teach')loadBoard();if(TAB==='mine'||TAB==='route')loadMe();});
+
+function render(){renderHead();var m=$('main');
+  if(!ME){m.innerHTML=viewLogin();return;}
+  if(PLAY){m.innerHTML=viewPlay();return;}
+  m.innerHTML=TAB==='route'?viewRoute():TAB==='round'?viewRound():TAB==='mine'?viewMine():viewTeach();}
+
+/* ---------- login ---------- */
+function viewLogin(){return '<form class="panel login" id="loginForm"><h1>Region Arena</h1><p class="small muted">Game học tập của học phần MEM4007 <i>Chính sách phát triển kinh tế vùng và địa phương</i>. Đăng nhập bằng tên và mã giảng viên cấp.</p>'+
+  '<label class="label" for="lu">Tên đăng nhập</label><input type="text" id="lu" autocomplete="username" autocapitalize="none" spellcheck="false" required>'+
+  '<label class="label" for="lp">Mã</label><input type="password" id="lp" autocomplete="current-password" required>'+
+  '<p class="err" id="lerr" hidden></p><div><button class="btn" id="lbtn">Đăng nhập</button></div></form>';}
+document.addEventListener('submit',function(e){if(e.target.id!=='loginForm')return;e.preventDefault();var b=$('lbtn');b.disabled=true;
+  api('login',{u:$('lu').value,p:$('lp').value}).then(function(res){b.disabled=false;
+    if(!res.ok){var x=$('lerr');x.textContent=errText(res.error);x.hidden=false;return;}
+    try{localStorage.setItem('ra-t',res.t);}catch(err){}TAB=res.role==='teacher'?'teach':'route';loadMe();});});
+
+/* ---------- route ---------- */
+function viewRoute(){var first=(PROG&&PROG.first)||{};
+  var h='<section class="stack"><div class="stack" style="gap:4px"><h1>Hành trình 5 tuyến</h1><p class="muted small">Mỗi ga là một mục đề cương: 6 câu, làm hết rồi nộp một lần, chỉ báo tổng số câu đúng. <b>Lần làm đầu</b> được tính vào điểm quá trình; làm lại chỉ để luyện và lấy XP. Ga ◆ cuối mỗi tuyến là Trùm: 10 câu, 15 phút.</p>'+(teacher()?'<p class="note">Giảng viên chơi thử mọi tuyến; kết quả không được ghi.</p>':'')+'</div>';
+  LINES.forEach(function(L){var open=gateOpen(L.ch),secs=sectionsOf(L.ch),allTried=secs.every(function(s){return first[s];});
+    h+='<div class="line'+(open?'':' closed')+'" style="--lc:var(--c'+L.ch+')"><div class="lhead"><span class="lbadge">C'+L.ch+'</span><div style="min-width:0"><h2>'+esc(L.name)+'</h2><p class="small muted">'+esc(L.topic)+' · '+L.buoi+(open?'':' · <span class="chip">🔒 giảng viên chưa mở</span>')+'</p></div></div><ol class="stations">';
+    secs.forEach(function(s){var r=first[s];h+='<li><button type="button" class="st'+(r?' done':'')+'" data-stop="'+s+'"'+(open?'':' disabled')+'><span class="t"><span class="code">'+s+'</span> '+esc(STAGES[s])+'</span><span class="res">'+(r?'✓ '+r[0]+'/'+r[1]:'')+'</span></button></li>';});
+    var bid=L.ch+'.★',br=first[bid],bossOk=open&&(allTried||teacher());
+    h+='<li><button type="button" class="st boss'+(br?' done':'')+'" data-stop="'+bid+'"'+(bossOk?'':' disabled')+'><span class="t"><span class="code">◆ Trùm</span> Tổng ôn C'+L.ch+(allTried||teacher()?'':' <span class="small muted">(làm hết các ga trước)</span>')+'</span><span class="res">'+(br?'✓ '+br[0]+'/'+br[1]:'')+'</span></button></li></ol></div>';});
+  return h+'</section>';}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-stop]');if(!b||b.disabled||BUSY)return;startStop(b.dataset.stop);});
+
+/* ---------- play ---------- */
+function startStop(id){BUSY=true;api('start',{stop:id}).then(function(res){BUSY=false;if(!res.ok)return toast(errText(res.error));
+  var boss=id.indexOf('★')>0;PLAY={id:id,kind:boss?'boss':'stop',ch:+id.charAt(0),aid:res.aid,qs:res.qs.map(function(q){return Object.assign({ans:null},q);}),end:res.deadline,done:null};
+  if(boss){clearInterval(startStop.t);startStop.t=setInterval(function(){if(!PLAY||PLAY.done){clearInterval(startStop.t);return;}var left=PLAY.end-Date.now(),t=$('tmr');if(t)t.textContent=clock(left);if(left<=0){clearInterval(startStop.t);submitPlay(true);}},1000);}
+  render();window.scrollTo(0,0);});}
+function fmtQ(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>');}
+function leftCount(){return PLAY.qs.filter(function(q){return q.ans==null||q.ans==='';}).length;}
+function viewPlay(){var P=PLAY,L=LINES[P.ch-1],title=P.kind==='boss'?'◆ Trùm tuyến C'+P.ch+': '+L.name:P.id+' · '+STAGES[P.id];
+  var h='<section class="stack" style="--lc:var(--c'+P.ch+')"><div class="row" style="justify-content:space-between"><h1 style="font-size:20px">'+esc(title)+'</h1>'+(P.kind==='boss'&&!P.done?'<span class="chip timer" id="tmr">'+clock(P.end-Date.now())+'</span>':'')+'</div>';
+  if(P.done){var d=P.done;
+    return h+'<div class="panel" style="border-color:var(--lc)"><p class="label">Kết quả</p><p style="font:800 36px var(--display)">Đúng '+d.r+'/'+d.n+'</p><p>'+(d.trial?'<span class="chip">giảng viên thử: không ghi</span>':'+'+d.xp+' XP · '+(d.counted?'<span class="chip good">lần làm đầu: được tính điểm quá trình</span>':'<span class="chip">làm lại: chỉ tính XP</span>'))+(d.late?' · <span class="chip warn">nộp sau giờ</span>':'')+'</p><p class="small muted">Game chỉ báo tổng số câu đúng, không báo câu nào đúng, câu nào sai.</p><div class="row"><button class="btn" data-act="back">Về hành trình</button>'+(P.kind==='stop'?'<button class="btn ghost" data-act="again">Làm bộ câu khác</button>':'')+'</div></div></section>';}
+  P.qs.forEach(function(q,i){h+='<div class="q"><span class="n">Câu '+(i+1)+'/'+P.qs.length+'</span><p>'+fmtQ(q.q)+'</p>';
+    if(q.type==='mc')q.o.forEach(function(o,k){h+='<label class="opt"><input type="radio" name="q'+i+'" value="'+k+'"'+(q.ans===k?' checked':'')+'><span>'+esc(o)+'</span></label>';});
+    else h+='<div class="row"><input type="text" inputmode="decimal" data-num="'+i+'" value="'+esc(q.ans==null?'':q.ans)+'" placeholder="Nhập số, ví dụ 1,25" aria-label="Đáp số câu '+(i+1)+'">'+(q.unit?'<span class="muted">'+esc(q.unit)+'</span>':'')+'<span class="small muted">sai số cho phép ±'+Math.round(q.tol*100)+'%</span></div>';
+    h+='</div>';});
+  var left=leftCount();
+  return h+'<div class="panel"><p class="small" id="leftp">'+(left?'Còn <b>'+left+'</b> câu chưa trả lời.':'Đã trả lời đủ. Nộp bài để xem tổng số câu đúng.')+'</p><div class="row"><button class="btn" data-act="submit"'+(left&&P.kind!=='boss'?' disabled':'')+'>Nộp bài</button>'+(P.kind==='stop'?'<button class="btn ghost" data-act="back">Bỏ, về hành trình</button>':'')+'</div></div></section>';}
+function refreshSubmit(){var left=leftCount(),b=document.querySelector('[data-act="submit"]');if(b)b.disabled=!!left&&PLAY.kind!=='boss';var p=$('leftp');if(p)p.innerHTML=left?'Còn <b>'+left+'</b> câu chưa trả lời.':'Đã trả lời đủ. Nộp bài để xem tổng số câu đúng.';}
+document.addEventListener('change',function(e){var t=e.target;if(PLAY&&!PLAY.done&&t.type==='radio'&&/^q\d+$/.test(t.name)){PLAY.qs[+t.name.slice(1)].ans=+t.value;refreshSubmit();}});
+document.addEventListener('input',function(e){var t=e.target;if(PLAY&&!PLAY.done&&t.dataset.num!=null){PLAY.qs[+t.dataset.num].ans=t.value.trim();refreshSubmit();}});
+function submitPlay(timeout){var P=PLAY;if(!P||P.done||BUSY)return;BUSY=true;clearInterval(startStop.t);var b=document.querySelector('[data-act="submit"]');if(b)b.disabled=true;
+  api('submit',{aid:P.aid,ans:P.qs.map(function(q){return q.ans;})}).then(function(res){BUSY=false;
+    if(!res.ok){if(b)b.disabled=false;return toast(errText(res.error));}
+    P.done=res;if(timeout)P.done.late=P.done.late||false;loadMe();render();window.scrollTo(0,0);});}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(!b)return;var a=b.dataset.act;
+  if(a==='submit')submitPlay(false);
+  else if(a==='back'){PLAY=null;TAB='route';render();}
+  else if(a==='again'){startStop(PLAY.id);}
+  else if(a==='sheet')submitSheet(b);
+  else if(a==='csv')downloadCsv();});
+
+/* ---------- governance round ---------- */
+function loadRound(){return api('round').then(function(res){if(!res.ok)return;RD=res;if(TAB==='round'&&!PLAY)render();});}
+function dashboard(d){var h='<div class="bars">';DIMS.forEach(function(k){h+='<span class="small">'+DIMNAME[k]+' <span class="mono muted">'+k+'</span></span><span class="bar"><i style="width:'+d.z[k]+'%"></i></span><span class="mono small">'+fmtNum(d.z[k])+'</span>';});
+  h+='</div><p class="small">Chỉ số phát triển (trung bình NS, VL, MT, DS): <b class="mono">'+fmtNum(d.dev)+'</b></p><div class="tbl"><table><thead><tr><th>Ngành</th><th class="num">LQ so với cả thành phố</th></tr></thead><tbody>'+SECTORS.map(function(s,i){return '<tr><td>'+esc(s)+'</td><td class="num">'+fmtNum(d.lq[i])+'</td></tr>';}).join('')+'</tbody></table></div>';
+  return h+'<p class="note">Chỉ số mô phỏng 0–100 của trò chơi, không phải số liệu thống kê.</p>';}
+function viewRound(){var h='<section class="stack"><h1>Vòng điều hành · TP.HCM mới</h1><div class="panel"><p class="label">Dữ kiện thật (Sổ dữ kiện của môn)</p><ul class="small" style="margin:0;padding-left:18px">'+FACTS.map(function(f){return '<li><span class="mono muted">'+f[0]+'</span> '+esc(f[1])+'</li>';}).join('')+'</ul></div>';
+  if(!RD)return h+'<p class="muted">Đang tải…</p></section>';
+  if(!RD.team)return h+'<div class="panel"><p>Giảng viên chưa xếp bạn vào nhóm. Nhóm A1 của bạn sẽ được giao một khu vực của thành phố.</p></div></section>';
+  var z=RD.team.zone,info=ZONEINFO[z],rd=RD.round;
+  h+='<div class="panel"><p class="label">'+esc(RD.team.name)+' · khu vực '+z+'</p><h2>'+esc(ZONES[z])+'</h2><p class="small"><b>Vai trò:</b> '+esc(info.role)+'. <b>Căng thẳng chính sách:</b> '+esc(info.tension)+'.</p>'+dashboard(RD.dash)+'</div>';
+  h+='<div class="panel"><p class="label">'+esc(rd.title)+' · '+(rd.status==='open'?'<span class="chip good">đang mở</span>':rd.status==='done'?'<span class="chip">đã chạy mô phỏng</span>':rd.status==='running'?'<span class="chip warn">đang chạy mô phỏng</span>':'<span class="chip">chưa mở</span>')+'</p><p>'+esc(rd.story)+'</p></div>';
+  if(RD.sheet){h+='<div class="panel"><h3>Nhóm đã nộp phiếu</h3><p>Điểm lập luận của nhóm: <b class="mono" style="font-size:20px">'+RD.sheet.score+'/10</b></p><p class="small muted">Nộp lúc '+new Date(RD.sheet.at).toLocaleTimeString('vi-VN')+(RD.sheet.mine?' (bạn nộp)':'')+'. Game chỉ báo tổng điểm, không báo phần nào đúng.</p></div>';
+    if(RD.result){var o=RD.result;h+='<div class="panel"><h3>Kết quả mô phỏng của khu vực</h3><p>Chỉ số phát triển: <span class="mono">'+fmtNum(o.before)+' → <b>'+fmtNum(o.after)+'</b></span> ('+(o.after>=o.before?'+':'')+fmtNum(o.after-o.before)+'). Đầu tư mới nhận được: <span class="mono">'+fmtNum(o.inv)+'</span> (chỉ số).</p><p class="small muted">Kết quả mô phỏng chỉ cho XP, không tính vào điểm.</p></div>';}
+    return h+'</section>';}
+  if(rd.status!=='open')return h+'<div class="panel"><p>'+(rd.status==='done'?'Vòng đã chạy mô phỏng; nhóm bạn không nộp phiếu.':'Giảng viên sẽ mở vòng trên lớp. Trong lúc chờ, cả nhóm đọc bảng điều khiển và chuẩn bị chẩn đoán.')+'</p></div></section>';
+  return h+sheetForm()+'</section>';}
+function sheetForm(){if(!DRAFT)DRAFT={ind:[],theory:'',alloc:{HT:0,DN:0,NL:0,CD:0,MT:0,UD:0},kpi:'',risk:''};var d=DRAFT,tot=LEVERS.reduce(function(a,k){return a+d.alloc[k];},0);
+  var h='<div class="panel" id="sheet"><h2>Phiếu lập luận của nhóm</h2><p class="small muted">Một thành viên nộp cho cả nhóm, nộp một lần. Năm phần theo khung 5 bước của bài thi A3.</p>';
+  h+='<h3>1. Vấn đề: chọn đúng 2 chỉ báo cho thấy vấn đề chính</h3><div class="pick">'+DIMS.map(function(x){return '<label><input type="checkbox" data-ind="'+x+'"'+(d.ind.indexOf(x)>=0?' checked':'')+'>'+DIMNAME[x]+'</label>';}).join('')+'</div>';
+  h+='<h3>2. Giải thích: lý thuyết nào giải thích vấn đề?</h3><select id="th" aria-label="Thẻ lý thuyết"><option value="">Chọn thẻ lý thuyết…</option>'+RD.cards.map(function(c){return '<option value="'+c.id+'"'+(d.theory===c.id?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')+'</select>';
+  var card=RD.cards.filter(function(c){return c.id===d.theory;})[0];
+  if(card)h+='<p class="small note"><b>Cơ chế:</b> '+esc(card.mechanism)+'<br><b>Hàm ý chính sách:</b> '+esc(card.policy)+'</p>';
+  h+='<h3>3. Phương án: chia đúng 10 điểm ngân sách <span class="mono">('+tot+'/10)</span></h3><div class="alloc">'+LEVERS.map(function(k){return '<span class="small">'+LEVERNAME[k]+'</span><span class="step"><button type="button" data-al="'+k+'" data-d="-1" aria-label="Bớt">−</button><output>'+d.alloc[k]+'</output><button type="button" data-al="'+k+'" data-d="1" aria-label="Thêm">+</button></span>';}).join('')+'</div>';
+  h+='<h3>4. Mục tiêu: chọn một KPI theo SMART</h3><select id="kp" aria-label="KPI"><option value="">Chọn KPI…</option>'+Object.keys(RD.kpis).map(function(k){return '<option value="'+k+'"'+(d.kpi===k?' selected':'')+'>'+esc(RD.kpis[k])+'</option>';}).join('')+'</select>';
+  h+='<h3>5. Rủi ro: rủi ro hoặc đánh đổi chính của phương án</h3><select id="rk" aria-label="Rủi ro"><option value="">Chọn rủi ro…</option>'+Object.keys(RD.risks).map(function(k){return '<option value="'+k+'"'+(d.risk===k?' selected':'')+'>'+esc(RD.risks[k])+'</option>';}).join('')+'</select>';
+  var ok=d.ind.length===2&&d.theory&&tot===10&&d.kpi&&d.risk;
+  return h+'<div class="row"><button class="btn" data-act="sheet" data-step="'+(sheetForm.arm?'2':'1')+'"'+(ok?'':' disabled')+'>'+(sheetForm.arm?'Bấm lần nữa để nộp (không sửa được)':'Nộp phiếu của nhóm')+'</button>'+(ok?'':'<span class="small muted">Điền đủ 5 phần để nộp.</span>')+'</div></div>';}
+document.addEventListener('change',function(e){var t=e.target;if(!DRAFT||TAB!=='round')return;
+  if(t.dataset.ind){var i=DRAFT.ind.indexOf(t.dataset.ind);if(t.checked&&i<0){if(DRAFT.ind.length>=2){t.checked=false;return toast('Chỉ chọn 2 chỉ báo.');}DRAFT.ind.push(t.dataset.ind);}if(!t.checked&&i>=0)DRAFT.ind.splice(i,1);}
+  else if(t.id==='th')DRAFT.theory=t.value;else if(t.id==='kp')DRAFT.kpi=t.value;else if(t.id==='rk')DRAFT.risk=t.value;else return;
+  sheetForm.arm=false;render();});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-al]');if(!b||!DRAFT)return;var k=b.dataset.al,dd=+b.dataset.d,v=DRAFT.alloc[k]+dd,tot=LEVERS.reduce(function(a,x){return a+DRAFT.alloc[x];},0);
+  if(v<0||(dd>0&&tot>=10))return;DRAFT.alloc[k]=v;sheetForm.arm=false;render();});
+function submitSheet(b){if(b.dataset.step==='1'){sheetForm.arm=true;render();return;}
+  if(BUSY)return;BUSY=true;b.disabled=true;
+  api('sheet',DRAFT).then(function(res){BUSY=false;sheetForm.arm=false;if(!res.ok){toast(errText(res.error));if(res.error==='team_submitted')DRAFT=null;loadRound();return;}
+    DRAFT=null;toast('Đã nộp phiếu: '+res.score+'/10.');loadRound();});}
+
+/* ---------- my results ---------- */
+function stationScore(p){var r=0,n=0;if(!p)return null;LINES.forEach(function(L){if((CFG.gates||{})[L.ch]!=='o')return;
+  stopsOf(L.ch).forEach(function(id){var f=(p.first||{})[id];n+=id.indexOf('★')>0?BOSS_N:SET;if(f)r+=f[0];});});return n?r/n:null;}
+function weights(){return Object.assign({st:40,rd:60,fin:0},CFG.weights||{});}
+function gameScore(st,rd){var w=weights(),num=0,den=0;[[st,w.st],[rd,w.rd]].forEach(function(x){if(x[0]!=null&&x[1]>0){num+=x[0]*x[1];den+=x[1];}});return den?10*num/den:null;}
+function viewMine(){var ss=stationScore(PROG),rs=RSCORE==null?null:RSCORE/10,g=gameScore(ss,rs),w=weights();
+  var h='<section class="stack"><h1>Kết quả của tôi</h1><div class="panel"><p class="label">Điểm game (thang 10)</p><p style="font:800 34px var(--display)">'+(g==null?'—':fmtNum(g))+'</p>'+
+   '<p class="small">Trạm (lần làm đầu, các tuyến đã mở): <b class="mono">'+(ss==null?'—':pct(ss,1)+'%')+'</b> · Vòng điều hành: <b class="mono">'+(rs==null?'—':fmtNum(rs*10)+'/10')+'</b></p>'+
+   '<p class="note">Trọng số '+w.st+' / '+w.rd+' (trạm / vòng). Phần chưa diễn ra không tính vào mẫu số. Kết quả mô phỏng không tính vào điểm.</p></div>';
+  h+='<div class="panel"><h3>Chuẩn đầu ra (CLO) qua lần trả lời đầu</h3><div class="tbl"><table><thead><tr><th>CLO</th><th class="num">Đã trả lời</th><th class="num">Đúng</th></tr></thead><tbody>';
+  for(var c=1;c<=6;c++){var x=((PROG||{}).clo||{})['rg'+c]||[0,0];h+='<tr><td>CLO'+c+'</td><td class="num">'+x[0]+'</td><td class="num">'+(x[0]?pct(x[1],x[0])+'%':'—')+'</td></tr>';}
+  return h+'</tbody></table></div></div></section>';}
+
+/* ---------- teacher ---------- */
+function loadBoard(){return api('board').then(function(res){if(!res.ok)return toast(errText(res.error));BOARD=res;CFG=res.cfg;STAGES=res.stages;if(TAB==='teach'&&!PLAY&&!editing())render();});}
+function editing(){var a=document.activeElement;return a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT'&&a.type!=='button');}
+function viewTeach(){var tabs=[['gates','Tuyến'],['users','Tài khoản'],['teams','Nhóm'],['round','Vòng'],['score','Điểm']];
+  var h='<section class="stack"><h1>Bảng giáo viên</h1><div class="row">'+tabs.map(function(x){return '<button class="btn sm'+(TTAB===x[0]?'':' ghost')+'" data-tt="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';
+  if(!BOARD)return h+'<p class="muted">Đang tải…</p></section>';
+  return h+(TTAB==='gates'?tGates():TTAB==='users'?tUsers():TTAB==='teams'?tTeams():TTAB==='round'?tRound():tScore())+'</section>';}
+function tcall(a,body,msg){if(BUSY)return Promise.resolve();BUSY=true;return api(a,body).then(function(res){BUSY=false;if(!res.ok){toast(errText(res.error)+(res.unknown&&res.unknown.length?' Không có: '+res.unknown.join(', ')+'.':'')+(res.twice&&res.twice.length?' Trùng nhóm: '+res.twice.join(', ')+'.':''));return res;}if(msg)toast(msg);return loadBoard().then(function(){return res;});});}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-tt]');if(b){TTAB=b.dataset.tt;MADE=null;render();loadBoard();return;}
+  b=e.target.closest('[data-gate]');if(b){var g=Object.assign({},CFG.gates||{}),ch=b.dataset.gate;if(g[ch]==='o')delete g[ch];else g[ch]='o';tcall('tCfg',{patch:{gates:g}});return;}
+  b=e.target.closest('[data-tact]');if(b)teachAct(b.dataset.tact,b);});
+function tGates(){return '<div class="panel"><p class="small muted">Tuyến đóng thì học viên không vào được. Mở tuyến theo buổi học. Chỉ các tuyến đang mở được tính vào điểm trạm.</p>'+LINES.map(function(L){var o=(CFG.gates||{})[L.ch]==='o';
+  return '<div class="row" style="justify-content:space-between;border-top:1px solid var(--rule);padding-top:8px"><span><span class="lbadge" style="--lc:var(--c'+L.ch+');width:24px;height:24px;font-size:11px">C'+L.ch+'</span> '+esc(L.name)+' <span class="small muted">'+L.buoi+'</span></span><button class="btn sm'+(o?'':' ghost')+'" data-gate="'+L.ch+'">'+(o?'🔓 Đang mở':'🔒 Đang đóng')+'</button></div>';}).join('')+'</div>';}
+function tUsers(){var us=BOARD.users;
+  var h='<div class="panel"><h3>Thêm hoặc cập nhật tài khoản</h3><p class="small muted">Mỗi dòng: <span class="mono">tên đăng nhập, mã, họ và tên</span>. Tên đăng nhập 3–32 ký tự: chữ không dấu, số, dấu . _ -. Để trống mã thì máy tạo mã 6 ký tự. Dòng có tên đã tồn tại sẽ đổi mã và họ tên.</p>'+
+   '<textarea id="ul" spellcheck="false" placeholder="hv2401001, k7m2pq, Nguyễn Văn A&#10;hv2401002, , Trần Thị B"></textarea><div class="row"><button class="btn" data-tact="users">Lưu tài khoản</button></div></div>';
+  if(MADE)h+='<div class="panel" style="border-color:var(--good)"><h3>Vừa lưu '+MADE.made.length+' tài khoản</h3><p class="small">Chép bảng này phát cho học viên. <b>Mã chỉ hiện lần này</b>; máy chủ chỉ giữ bản băm.</p><div class="tbl"><table><thead><tr><th>Tên đăng nhập</th><th>Mã</th><th>Họ và tên</th></tr></thead><tbody>'+MADE.made.map(function(x){return '<tr><td class="mono">'+esc(x.u)+'</td><td class="mono">'+esc(x.p)+'</td><td>'+esc(x.name)+'</td></tr>';}).join('')+'</tbody></table></div><div class="row"><button class="btn ghost sm" data-tact="madecsv">Tải danh sách mã (CSV)</button></div>'+(MADE.bad.length?'<p class="err">Bỏ qua: '+MADE.bad.map(function(x){return esc(x.u)+' ('+esc(x.why)+')';}).join('; ')+'</p>':'')+'</div>';
+  h+='<div class="panel"><h3>Tài khoản ('+us.length+')</h3><div class="tbl"><table><thead><tr><th>Tên đăng nhập</th><th>Họ và tên</th><th>Nhóm</th><th></th></tr></thead><tbody>'+us.map(function(x){var t=teamOfU(x.u);
+    return '<tr><td class="mono">'+esc(x.u)+'</td><td>'+esc(x.name)+(x.lock>Date.now()?' <span class="chip warn">đang khoá</span>':'')+'</td><td>'+esc(t?BOARD.cfg.teams[t].name:'—')+'</td><td><div class="row"><button class="btn ghost sm" data-tact="reset" data-u="'+esc(x.u)+'" data-step="'+(teachAct.armR===x.u?'2':'1')+'">'+(teachAct.armR===x.u?'Chắc chắn xoá tiến độ?':'Xoá tiến độ')+'</button><button class="btn ghost sm" data-tact="del" data-u="'+esc(x.u)+'" data-step="'+(teachAct.armD===x.u?'2':'1')+'">'+(teachAct.armD===x.u?'Chắc chắn xoá tài khoản?':'Xoá tài khoản')+'</button></div></td></tr>';}).join('')+'</tbody></table></div></div>';
+  return h;}
+function teamOfU(u){var ts=(BOARD&&BOARD.cfg.teams)||{};for(var t in ts)if((ts[t].members||[]).indexOf(u)>=0)return t;return null;}
+function tTeams(){var ts=BOARD.cfg.teams||{},ids=Object.keys(ts);if(!tTeams.rows)tTeams.rows=ids.map(function(t){return {id:t,name:ts[t].name,zone:ts[t].zone,members:(ts[t].members||[]).join(', ')};});
+  var free=BOARD.users.filter(function(x){return !teamOfU(x.u);}).map(function(x){return x.u;});
+  var h='<div class="panel"><h3>Nhóm và khu vực</h3><p class="small muted">Mỗi nhóm A1 điều hành một khu vực của TP.HCM mới. Ghi thành viên bằng <b>tên đăng nhập</b>, cách nhau bởi dấu phẩy. Hai nhóm chung một khu vực thì nộp riêng; mô phỏng lấy trung bình ngân sách của hai nhóm.</p>';
+  tTeams.rows.forEach(function(r,i){h+='<div class="stack" style="gap:6px;border-top:1px solid var(--rule);padding-top:10px"><div class="row"><input type="text" data-tr="'+i+'" data-f="name" value="'+esc(r.name)+'" placeholder="Tên nhóm" style="width:10em" aria-label="Tên nhóm"><select data-tr="'+i+'" data-f="zone" aria-label="Khu vực">'+Object.keys(ZONES).map(function(z){return '<option value="'+z+'"'+(r.zone===z?' selected':'')+'>'+z+' · '+esc(ZONES[z])+'</option>';}).join('')+'</select><button class="btn ghost sm" data-tact="rmteam" data-i="'+i+'">Bỏ nhóm</button></div><input type="text" data-tr="'+i+'" data-f="members" value="'+esc(r.members)+'" placeholder="hv2401001, hv2401002, …" aria-label="Thành viên" style="width:100%"></div>';});
+  h+='<div class="row"><button class="btn ghost" data-tact="addteam">Thêm nhóm</button><button class="btn" data-tact="saveteams">Lưu các nhóm</button></div>';
+  h+='<p class="small muted">Chưa có nhóm ('+free.length+'): <span class="mono">'+(free.length?free.map(esc).join(', '):'—')+'</span></p></div>';
+  return h;}
+document.addEventListener('input',function(e){var t=e.target;if(t.dataset.tr==null||!tTeams.rows)return;tTeams.rows[+t.dataset.tr][t.dataset.f]=t.value;});
+document.addEventListener('change',function(e){var t=e.target;if(t.dataset.tr!=null&&tTeams.rows){tTeams.rows[+t.dataset.tr][t.dataset.f]=t.value;return;}
+  if(t.dataset.w!=null){var w=Object.assign({},weights());w[t.dataset.w]=Math.max(0,Math.min(100,+t.value||0));tcall('tCfg',{patch:{weights:w}});}});
+function tRound(){var rd=BOARD.cfg.round||{n:1,status:'closed'},ts=BOARD.cfg.teams||{},r1=BOARD.r1;
+  var h='<div class="panel"><h3>Vòng 1 — Chẩn đoán: nhà đầu tư lớn chọn địa điểm</h3><p class="small">Trạng thái: <b>'+({closed:'chưa mở',open:'đang mở',running:'đang chạy',done:'đã chạy mô phỏng'})[rd.status]+'</b> · đã nộp '+BOARD.sheets.filter(function(s){return s.rd===1;}).length+'/'+Object.keys(ts).length+' nhóm</p><div class="row">'+
+   (rd.status==='closed'?'<button class="btn" data-tact="openround">Mở vòng 1</button>':'')+
+   (rd.status==='open'||rd.status==='running'?'<button class="btn" data-tact="runround" data-step="'+(teachAct.armRun?'2':'1')+'">'+(teachAct.armRun?'Bấm lần nữa: đóng phiếu và chạy mô phỏng':'Đóng vòng và chạy mô phỏng')+'</button>':'')+
+   (rd.status!=='closed'?'<button class="btn ghost" data-tact="resetround" data-step="'+(teachAct.armRR?'2':'1')+'">'+(teachAct.armRR?'Bấm lần nữa: xoá phiếu và kết quả vòng':'Đặt lại vòng')+'</button>':'')+'</div><p class="small muted">Vòng 2 (chiến lược) và vòng 3 (vùng đô thị đặc biệt) mở ở bản 1.1.</p></div>';
+  h+='<div class="panel"><h3>Debrief</h3><div class="tbl"><table><thead><tr><th>Nhóm</th><th>Khu vực</th><th>Người nộp</th><th>Vấn đề</th><th>Lý thuyết</th><th>Ngân sách</th><th>KPI</th><th>Rủi ro</th><th class="num">Phần</th><th class="num">Điểm</th><th class="num">Phát triển</th></tr></thead><tbody>';
+  Object.keys(ts).forEach(function(t){var s=BOARD.sheets.filter(function(x){return x.rd===1&&x.team===t;})[0],z=ts[t].zone,o=r1&&r1[z];
+    h+='<tr><td>'+esc(ts[t].name)+'</td><td>'+z+'</td>'+(s?'<td class="mono">'+esc(s.u)+'</td><td>'+s.ind.join(', ')+'</td><td>'+esc(s.theory)+'</td><td class="mono small">'+LEVERS.filter(function(k){return s.alloc[k];}).map(function(k){return k+s.alloc[k];}).join(' ')+'</td><td>'+s.kpi+'</td><td>'+s.risk+'</td><td class="num">'+s.parts.join('·')+'</td><td class="num"><b>'+s.score+'</b></td>':'<td colspan="8" class="muted">chưa nộp</td>')+'<td class="num">'+(o?fmtNum(o.before)+'→'+fmtNum(o.after):'—')+'</td></tr>';});
+  h+='</tbody></table></div>';
+  if(r1)h+='<p class="small">Đầu tư mới chia theo sức hút và ưu đãi: '+Object.keys(r1).map(function(z){return z+' '+fmtNum(r1[z].inv);}).join(' · ')+'</p>';
+  h+='<details><summary class="small">Đáp án vòng 1 (chỉ giáo viên)</summary><div class="tbl"><table><thead><tr><th>Khu vực</th><th>Chỉ báo</th><th>Lý thuyết</th><th>Đòn bẩy</th><th>KPI</th><th>Rủi ro</th><th>Vì sao</th></tr></thead><tbody>'+
+   Object.keys(BOARD.keys).map(function(z){var k=BOARD.keys[z];return '<tr><td>'+z+'</td><td>'+k.ind.join(', ')+'</td><td>'+k.theory.join(', ')+'</td><td>'+k.levers.join(', ')+'</td><td>'+k.kpi.join(', ')+'</td><td>'+k.risk.join(', ')+'</td><td class="small">'+esc(k.why)+'</td></tr>';}).join('')+'</tbody></table></div></details></div>';
+  return h;}
+function teachAct(a,b){
+  if(a==='users'){var lines=$('ul').value.split(/\n/).map(function(l){return l.trim();}).filter(Boolean).map(function(l){var p=l.split(/\s*[,\t;]\s*/);return {u:p[0],p:p[1]||'',name:p.slice(2).join(' ')};});
+    if(!lines.length)return toast('Dán ít nhất một dòng.');tcall('tUsers',{list:lines}).then(function(res){if(res&&res.ok){MADE=res;render();}});}
+  else if(a==='madecsv'){if(!MADE)return;csvSave('RegionArena_taikhoan.csv',[['Ten dang nhap','Ma','Ho va ten']].concat(MADE.made.map(function(x){return [x.u,x.p,x.name];})));}
+  else if(a==='reset'||a==='del'){var u=b.dataset.u,k=a==='reset'?'armR':'armD';if(b.dataset.step==='1'){teachAct.armR=teachAct.armD=null;teachAct[k]=u;render();return;}teachAct[k]=null;
+    tcall(a==='reset'?'tReset':'tUserDel',{u:u},a==='reset'?'Đã xoá tiến độ của '+u+'.':'Đã xoá tài khoản '+u+'.').then(function(){tTeams.rows=null;render();});}
+  else if(a==='addteam'){tTeams.rows.push({id:'T'+Date.now().toString(36).slice(-5),name:'Nhóm '+(tTeams.rows.length+1),zone:'Z'+((tTeams.rows.length%6)+1),members:''});render();}
+  else if(a==='rmteam'){tTeams.rows.splice(+b.dataset.i,1);render();}
+  else if(a==='saveteams'){var teams={};tTeams.rows.forEach(function(r){teams[r.id]={name:r.name,zone:r.zone,members:r.members};});
+    tcall('tTeams',{teams:teams},'Đã lưu các nhóm.').then(function(res){if(res&&res.ok){tTeams.rows=null;render();}});}
+  else if(a==='openround'){tcall('tRound',{op:'open'},'Đã mở vòng 1.');}
+  else if(a==='runround'){if(b.dataset.step==='1'){teachAct.armRun=true;render();return;}teachAct.armRun=false;tcall('tRound',{op:'run'},'Đã chạy mô phỏng vòng 1.');}
+  else if(a==='resetround'){if(b.dataset.step==='1'){teachAct.armRR=true;render();return;}teachAct.armRR=false;tcall('tRound',{op:'reset'},'Đã đặt lại vòng 1.');}}
+function scoreRows(){var ts=BOARD.cfg.teams||{},done=BOARD.cfg.round&&BOARD.cfg.round.status==='done';
+  return BOARD.users.map(function(x){var p=BOARD.progs[x.u]||null,t=teamOfU(x.u),ss=stationScore(p),rs=null;
+    if(t&&done){var s=BOARD.sheets.filter(function(y){return y.rd===1&&y.team===t;})[0];rs=s?s.score/10:0;}
+    var clo=[];for(var c=1;c<=6;c++){var v=((p||{}).clo||{})['rg'+c]||[0,0];clo.push(v[0]?pct(v[1],v[0]):null);}
+    return {u:x.u,name:x.name,team:t?ts[t].name:'',st:ss,rd:rs,g:gameScore(ss,rs),xp:xpOf(p),clo:clo};});}
+function tScore(){var w=weights(),rows=scoreRows();
+  var h='<div class="panel"><h3>Trọng số điểm game</h3><div class="row small">'+[['st','Trạm'],['rd','Vòng điều hành']].map(function(x){return '<label>'+x[1]+' <input type="number" min="0" max="100" data-w="'+x[0]+'" value="'+w[x[0]]+'" style="width:5em"></label>';}).join('')+'</div><p class="note">Điểm game = (trạm × '+w.st+' + vòng × '+w.rd+') / tổng trọng số của phần đã diễn ra, thang 10. Trạm = tỷ lệ đúng lần làm đầu trên mọi ga và Trùm của các tuyến đang mở (ga chưa làm tính 0). Kết quả mô phỏng không tính vào điểm.</p></div>';
+  return h+'<div class="panel"><div class="row" style="justify-content:space-between"><h3>Bảng điểm</h3><button class="btn ghost sm" data-act="csv">Tải CSV</button></div><div class="tbl"><table><thead><tr><th>Tên đăng nhập</th><th>Họ và tên</th><th>Nhóm</th><th class="num">Trạm</th><th class="num">Vòng</th><th class="num">Game /10</th><th class="num">XP</th>'+[1,2,3,4,5,6].map(function(c){return '<th class="num">CLO'+c+'</th>';}).join('')+'</tr></thead><tbody>'+
+   rows.map(function(r){return '<tr><td class="mono">'+esc(r.u)+'</td><td>'+esc(r.name)+'</td><td>'+esc(r.team)+'</td><td class="num">'+(r.st==null?'—':pct(r.st,1)+'%')+'</td><td class="num">'+(r.rd==null?'—':fmtNum(r.rd*10))+'</td><td class="num"><b>'+(r.g==null?'—':fmtNum(r.g))+'</b></td><td class="num">'+r.xp+'</td>'+r.clo.map(function(c){return '<td class="num">'+(c==null?'—':c+'%')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div></div>';}
+function csvSave(name,rows){var q=function(s){s=String(s==null?'':s);return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  var csv='﻿'+rows.map(function(r){return r.map(q).join(',');}).join('\n'),a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);window.__csv=csv;}
+function downloadCsv(){var rows=scoreRows();csvSave('RegionArena_diem.csv',[['Ten dang nhap','Ho va ten','Nhom','Tram %','Vong /10','Game /10','XP','CLO1','CLO2','CLO3','CLO4','CLO5','CLO6']].concat(rows.map(function(r){
+  return [r.u,r.name,r.team,r.st==null?'':pct(r.st,1),r.rd==null?'':fmtNum(r.rd*10),r.g==null?'':fmtNum(r.g),r.xp].concat(r.clo.map(function(c){return c==null?'':c;}));})));}
+
+boot();
+})();
+</script>
+</body>
+</html>
