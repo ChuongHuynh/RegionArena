@@ -229,7 +229,7 @@ td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabu
 <header><div class="in">
   <div class="brand">
     <div class="logo"><svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 17 L11 9 L15 14 L20 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <div><b>Region Arena</b><div class="zen">ZenRoad · @chuonghn · MEM4007 · v1.2</div></div></div>
+      <div><b>Region Arena</b><div class="zen">ZenRoad · @chuonghn · MEM4007 · v1.2.1</div></div></div>
     <div class="me" id="me"></div>
   </div>
   <nav id="nav" aria-label="Khu vực"></nav>
@@ -503,8 +503,7 @@ function sheetForm(){if(!DRAFT)DRAFT={ind:[],theory:'',alloc:{HT:0,DN:0,NL:0,CD:
   var h='<div class="panel" id="sheet"><div class="row" style="justify-content:space-between"><h2>Phiếu lập luận của nhóm</h2><span class="chip mono">'+nok+'/5 phần</span></div><p class="small muted">Một thành viên nộp cho cả nhóm, nộp một lần. Năm phần theo khung 5 bước của bài thi A3.</p><div class="steps">';
   h+=sh(0,'Vấn đề: chọn đúng 2 chỉ báo cho thấy vấn đề chính')+'<div class="pick">'+DIMS.map(function(x){return '<label><input type="checkbox" data-ind="'+x+'"'+(d.ind.indexOf(x)>=0?' checked':'')+'>'+DIMNAME[x]+'</label>';}).join('')+'</div></div>';
   h+=sh(1,'Giải thích: lý thuyết nào giải thích vấn đề?')+'<select id="th" aria-label="Thẻ lý thuyết"><option value="">Chọn thẻ lý thuyết…</option>'+RD.cards.map(function(c){return '<option value="'+c.id+'"'+(d.theory===c.id?' selected':'')+'>'+esc(c.id+' · '+c.name)+'</option>';}).join('')+'</select>';
-  var card=RD.cards.filter(function(c){return c.id===d.theory;})[0];
-  if(card)h+='<p class="small note"><b>Cơ chế:</b> '+esc(card.mechanism)+'<br><b>Hàm ý chính sách:</b> '+esc(card.policy)+'</p>';
+  if(d.theory)h+='<p class="small note">Nhóm tự tìm hàm ý lý thuyết của thẻ đã chọn và dùng nó để lập luận cho các phần sau.</p>';   // v1.2.1: mechanism + policy no longer shown (Boss)
   h+='</div>'+sh(2,'Phương án: chia đúng 10 điểm ngân sách')+'<div class="dots" role="img" aria-label="'+tot+'/10 điểm">'+[0,1,2,3,4,5,6,7,8,9].map(function(i){return '<i class="'+(i<tot?'on':'')+'"></i>';}).join('')+'<span class="mono small" style="margin-left:6px">'+tot+'/10</span></div><div class="alloc">'+LEVERS.map(function(k){return '<span class="nm"><span class="small"><b class="mono">'+LEVERCODE[k]+'</b> '+LEVERNAME[k]+'</span><small>'+LEVERHINT[k]+'</small></span><span class="step"><button type="button" data-al="'+k+'" data-d="-1" aria-label="Bớt">−</button><output>'+d.alloc[k]+'</output><button type="button" data-al="'+k+'" data-d="1" aria-label="Thêm">+</button></span>';}).join('')+'</div></div>';
   h+=sh(3,'Mục tiêu: chọn một KPI theo SMART')+'<select id="kp" aria-label="KPI"><option value="">Chọn KPI…</option>'+Object.keys(RD.kpis).map(function(k){return '<option value="'+k+'"'+(d.kpi===k?' selected':'')+'>'+esc(RD.kpis[k])+'</option>';}).join('')+'</select></div>';
   h+=sh(4,'Rủi ro: rủi ro hoặc đánh đổi chính của phương án')+'<select id="rk" aria-label="Rủi ro"><option value="">Chọn rủi ro…</option>'+Object.keys(RD.risks).map(function(k){return '<option value="'+k+'"'+(d.risk===k?' selected':'')+'>'+esc(RD.risks[k])+'</option>';}).join('')+'</select></div></div>';
